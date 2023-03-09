@@ -28,7 +28,9 @@ function gen(length) {
         let word = words[random(0, words.length - 1)]
 
         if(!noSpace) word += ' '
+        
         if(uppercased) word = word.toUpperCase()
+        else word = word.toLowerCase()
 
         result += word
     }
