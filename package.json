@@ -1,0 +1,22 @@
+{
+  "name": "cheburek",
+  "version": "1.0.0",
+  "description": "Cheburek discord bot (old version)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MisterKirill/cheburek.git"
+  },
+  "author": "MisterKirill",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MisterKirill/cheburek/issues"
+  },
+  "homepage": "https://github.com/MisterKirill/cheburek#readme",
+  "dependencies": {
+    "discord.js": "^14.7.1"
+  }
+}
