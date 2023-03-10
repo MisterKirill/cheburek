@@ -1,5 +1,6 @@
 const { appendFileSync, readFileSync, existsSync } = require('fs')
-const { Client, GatewayIntentBits, ActivityType } = require('discord.js')
+const { Client, GatewayIntentBits, ActivityType, AttachmentBuilder } = require('discord.js')
+const { generateFresco } = require('./memes')
 const config = require('./config')
 
 const bot = new Client({
@@ -43,18 +44,31 @@ function filterWord(word) {
     if(word.includes('@')) return false
     if(word.includes('http://')) return false
     if(word.includes('https://')) return false
-    if(words.includes(word)) return
-    if(word == '!gen') return
+    if(words.includes(word)) return false
+    if(word.length > 20) return false
+
+    // commands
+    if(word == '!g') return false
+    if(word == '!f') return false
+
     return true
 }
 
-bot.on('messageCreate', msg => {
+bot.on('messageCreate', async msg => {
     if(msg.author.bot) return
     if(!msg.content) return
 
-    if(msg.content.startsWith('!gen') || msg.mentions.has(bot.user.id)) {
+    if(msg.content.startsWith('!g') || msg.mentions.has(bot.user.id)) {
         let reply = gen(random(1, 5))
         msg.reply(reply)
+    }
+
+    if(msg.content.startsWith('!f')) {
+        let reply = gen(random(1, 4))
+
+        let fresco = await generateFresco(reply)
+
+        msg.reply({files: [new AttachmentBuilder(fresco, 'fresco.jpg')]})
     }
 
     msg.content.split(' ').forEach(word => {

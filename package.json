@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/MisterKirill/cheburek#readme",
   "dependencies": {
+    "canvas": "^2.11.0",
     "discord.js": "^14.7.1"
   }
 }
