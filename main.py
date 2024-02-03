@@ -32,6 +32,8 @@ async def on_message(ctx: discord.Message):
     content = re.sub(r' +', ' ', ctx.content)
 
     for word in content.split(' '):
+        word = word.translate(str.maketrans('', '', string.punctuation)).lower()
+        
         if word.find('http://') != -1 or word.find('https://') != -1:
             continue
         elif re.search(r'<@([0-9]*)>', word):
@@ -39,8 +41,6 @@ async def on_message(ctx: discord.Message):
         elif word in words:
             continue
         else:
-            word = word.translate(str.maketrans('', '', string.punctuation)).lower()
-
             with open('data/words.txt', 'a', encoding='utf8', buffering=1) as file:
                 file.write(word + '\n')
 
