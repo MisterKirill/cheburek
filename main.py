@@ -46,19 +46,16 @@ async def on_message(ctx: discord.Message):
 
             words.append(word)
 
-@tree.command(name='generate', description='Сгенерировать сообщение', guild=discord.Object(id=1083347822247682078))
+@tree.command(name='generate', description='Generate a message')
 async def generate(interaction: discord.Interaction):
     await interaction.response.send_message(generate_message())
 
 async def status_task():
     while True:
-        words_count = len(words)
-        if words_count == 1:
-            await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f'{words_count} слово'))
-        elif words_count >= 2 or words_count <= 4:
-            await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f'{words_count} слова'))
+        if len(words) == 1:
+            await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f'{len(words)} word'))
         else:
-            await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f'{words_count} слов'))
+            await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f'{len(words)} words'))
         await asyncio.sleep(10)
 
 @client.event
