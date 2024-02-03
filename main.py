@@ -60,7 +60,7 @@ async def status_task():
 
 @client.event
 async def on_ready():
-    await tree.sync(guild=discord.Object(id=1083347822247682078))
+    await tree.sync()
     client.loop.create_task(status_task())
 
     with open('data/words.txt', 'r', encoding='utf8') as file:
