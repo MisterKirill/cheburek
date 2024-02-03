@@ -55,13 +55,27 @@ async def generate(interaction: discord.Interaction):
     image = Image.open(path)
     image = image.resize((430, 334))
 
-    template = Image.open('demotivator.png')
+    template = Image.open('images/demotivator.png')
     template.paste(image, (72, 42))
 
     draw = ImageDraw.Draw(template)
 
-    font = ImageFont.truetype("Impact.ttf", 32)
+    font = ImageFont.truetype('fonts/Impact.ttf', 32)
     draw.text((template.width // 2, 450), generate_message(), (255, 255, 255), font=font, anchor='mm')
+
+    with io.BytesIO() as image_binary:
+        template.save(image_binary, 'PNG')
+        image_binary.seek(0)
+        await interaction.response.send_message(file=discord.File(image_binary, 'demotivator.png'))
+
+@tree.command(name='fresco', description='Generate a Fresco meme')
+async def generate(interaction: discord.Interaction):
+    template = Image.open('images/fresco.png')
+
+    draw = ImageDraw.Draw(template)
+
+    font = ImageFont.truetype('fonts/Arial.ttf', 23)
+    draw.text((165, 160), generate_message(), (0, 0, 0), font=font, anchor='mm')
 
     with io.BytesIO() as image_binary:
         template.save(image_binary, 'PNG')
