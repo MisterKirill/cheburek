@@ -76,8 +76,10 @@ async def on_message(ctx: discord.Message):
     content = re.sub(r' +', ' ', ctx.content)
 
     for word in content.split(' '):
-        word = word.translate(str.maketrans('', '', string.punctuation)).lower()
+        word = word.translate(str.maketrans('', '', string.punctuation)).strip().lower()
         
+        if word == '':
+            continue
         if word.find('http://') != -1 or word.find('https://') != -1:
             continue
         elif re.search(r'<@([0-9]*)>', word):
