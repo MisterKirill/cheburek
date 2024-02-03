@@ -25,7 +25,17 @@ async def status_task():
             await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f'{len(words)} word'))
         else:
             await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f'{len(words)} words'))
-        await asyncio.sleep(10)
+        
+        await asyncio.sleep(5)
+        
+        images = glob('data/images/*.png')
+
+        if len(images) == 1:
+            await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f'{len(images)} image'))
+        else:
+            await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f'{len(images)} images'))
+
+        await asyncio.sleep(5)
 
 def generate_message():
     message = ''
