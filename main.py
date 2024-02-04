@@ -19,24 +19,6 @@ tree = app_commands.CommandTree(client)
 
 words = []
 
-async def status_task():
-    while True:
-        if len(words) == 1:
-            await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f'{len(words)} word'))
-        else:
-            await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f'{len(words)} words'))
-        
-        await asyncio.sleep(5)
-        
-        images = glob('data/images/*.png')
-
-        if len(images) == 1:
-            await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f'{len(images)} image'))
-        else:
-            await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f'{len(images)} images'))
-
-        await asyncio.sleep(5)
-
 def generate_message():
     message = ''
 
@@ -82,6 +64,11 @@ async def generate(interaction: discord.Interaction):
         image_binary.seek(0)
         await interaction.response.send_message(file=discord.File(image_binary, 'demotivator.png'))
 
+@tree.command(name='stats', description='Get statistics')
+async def generate(interaction: discord.Interaction):
+    images = glob('data/images/*.png')
+    await interaction.response.send_message(f'> Words count: **{len(words)} words**\n> Images count: **{len(images)} images**')
+
 @client.event
 async def on_message(ctx: discord.Message):
     if ctx.author.bot:
@@ -90,7 +77,7 @@ async def on_message(ctx: discord.Message):
     content = re.sub(r' +', ' ', ctx.content)
 
     for word in content.split(' '):
-        word = word.translate(str.maketrans('', '', string.punctuation)).strip().lower()
+        word = word.translate(str.maketrans('', '', string.punctuation)).strip().lower().replace('\n', '')
         
         if word == '':
             continue
@@ -121,7 +108,6 @@ async def on_ready():
     print(f'Loaded {len(words)} words!')
 
     await tree.sync()
-    client.loop.create_task(status_task())
 
 if __name__ == '__main__':
     load_dotenv()
