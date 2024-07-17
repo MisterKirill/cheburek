@@ -42,7 +42,7 @@ async def generate(interaction: discord.Interaction):
     await interaction.response.send_message(generate_message())
 
 @tree.command(name='demotivator', description='Generate a demotivator')
-async def generate(interaction: discord.Interaction):
+async def demotivator(interaction: discord.Interaction):
     path = random.choice(glob('data/images/*.png'))
     image = Image.open(path)
     image = image.resize((430, 334))
@@ -61,7 +61,7 @@ async def generate(interaction: discord.Interaction):
         await interaction.response.send_message(file=discord.File(image_binary, 'demotivator.png'))
 
 @tree.command(name='fresco', description='Generate a Fresco meme')
-async def generate(interaction: discord.Interaction):
+async def fresco(interaction: discord.Interaction):
     template = Image.open('images/fresco.png')
 
     draw = ImageDraw.Draw(template)
@@ -75,7 +75,7 @@ async def generate(interaction: discord.Interaction):
         await interaction.response.send_message(file=discord.File(image_binary, 'demotivator.png'))
 
 @tree.command(name='ai', description='Generate an AI image')
-async def generate(interaction: discord.Interaction):
+async def ai(interaction: discord.Interaction):
     await interaction.response.defer()
 
     loop = asyncio.get_running_loop()
@@ -84,7 +84,7 @@ async def generate(interaction: discord.Interaction):
     await interaction.followup.send(message, file=image)
 
 @tree.command(name='stats', description='Get statistics')
-async def generate(interaction: discord.Interaction):
+async def stats(interaction: discord.Interaction):
     images = glob('data/images/*.png')
     await interaction.response.send_message(f'> Words count: **{len(words)} words**\n> Images count: **{len(images)} images**')
 
