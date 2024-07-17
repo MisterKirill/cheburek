@@ -33,7 +33,7 @@ def generate_ai_image_and_message():
     generation = generate_message()
     api = Text2ImageAPI('https://api-key.fusionbrain.ai/', os.getenv('FUSIONBRAIN_API_KEY'), os.getenv('FUSIONBRAIN_API_SECRET'))
     model_id = api.get_model()
-    uuid = api.generate(generation, model_id, width=512, height=512)
+    uuid = api.generate(generation, model_id, width=256, height=256)
     images = api.check_generation(uuid)
     return (generation, discord.File(io.BytesIO(base64.b64decode(images[0])), filename='ai_image.png'))
 
@@ -80,8 +80,8 @@ async def generate(interaction: discord.Interaction):
 
     loop = asyncio.get_running_loop()
 
-    image = await loop.run_in_executor(None, generate_ai_image_and_message)
-    await interaction.followup.send(image[0], file=image[1])
+    message, image = await loop.run_in_executor(None, generate_ai_image_and_message)
+    await interaction.followup.send(message, file=image)
 
 @tree.command(name='stats', description='Get statistics')
 async def generate(interaction: discord.Interaction):
