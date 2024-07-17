@@ -5,6 +5,7 @@ import string
 import discord
 import random
 import base64
+import asyncio
 from text2image import Text2ImageAPI
 from glob import glob
 from discord import app_commands
@@ -23,10 +24,18 @@ words = []
 def generate_message():
     message = ''
 
-    for _ in range(random.randint(1, 6)):
+    for _ in range(random.randint(1, 5)):
         message += random.choice(words) + ' '
 
     return message.rstrip()
+
+def generate_ai_image_and_message():
+    generation = generate_message()
+    api = Text2ImageAPI('https://api-key.fusionbrain.ai/', os.getenv('FUSIONBRAIN_API_KEY'), os.getenv('FUSIONBRAIN_API_SECRET'))
+    model_id = api.get_model()
+    uuid = api.generate(generation, model_id, width=512, height=512)
+    images = api.check_generation(uuid)
+    return (generation, discord.File(io.BytesIO(base64.b64decode(images[0])), filename='ai_image.png'))
 
 @tree.command(name='generate', description='Generate a message')
 async def generate(interaction: discord.Interaction):
@@ -67,17 +76,12 @@ async def generate(interaction: discord.Interaction):
 
 @tree.command(name='ai', description='Generate an AI image')
 async def generate(interaction: discord.Interaction):
-    generation = generate_message()
-
     await interaction.response.defer()
 
-    api = Text2ImageAPI('https://api-key.fusionbrain.ai/', os.getenv('FUSIONBRAIN_API_KEY'), os.getenv('FUSIONBRAIN_API_SECRET'))
-    model_id = api.get_model()
-    uuid = api.generate(generation, model_id, width=512, height=512)
-    images = api.check_generation(uuid)
-    file = discord.File(io.BytesIO(base64.b64decode(images[0])), filename='ai_image.png')
+    loop = asyncio.get_running_loop()
 
-    await interaction.followup.send(generation, file=file)
+    image = await loop.run_in_executor(None, generate_ai_image_and_message)
+    await interaction.followup.send(image[0], file=image[1])
 
 @tree.command(name='stats', description='Get statistics')
 async def generate(interaction: discord.Interaction):
@@ -98,7 +102,7 @@ async def on_message(ctx: discord.Message):
             continue
         if word.find('http://') != -1 or word.find('https://') != -1:
             continue
-        elif re.search(r'<@([0-9]*)>', word):
+        elif word.startswith('<@') and word.endswith('>'):
             continue
         elif word in words:
             continue
