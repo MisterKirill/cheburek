@@ -3,8 +3,9 @@ import os
 import io
 import string
 import discord
-import asyncio
 import random
+import base64
+from text2image import Text2ImageAPI
 from glob import glob
 from discord import app_commands
 from dotenv import load_dotenv
@@ -63,6 +64,20 @@ async def generate(interaction: discord.Interaction):
         template.save(image_binary, 'PNG')
         image_binary.seek(0)
         await interaction.response.send_message(file=discord.File(image_binary, 'demotivator.png'))
+
+@tree.command(name='ai', description='Generate an AI image')
+async def generate(interaction: discord.Interaction):
+    generation = generate_message()
+
+    await interaction.response.defer()
+
+    api = Text2ImageAPI('https://api-key.fusionbrain.ai/', os.getenv('FUSIONBRAIN_API_KEY'), os.getenv('FUSIONBRAIN_API_SECRET'))
+    model_id = api.get_model()
+    uuid = api.generate(generation, model_id, width=512, height=512)
+    images = api.check_generation(uuid)
+    file = discord.File(io.BytesIO(base64.b64decode(images[0])), filename='ai_image.png')
+
+    await interaction.followup.send(generation, file=file)
 
 @tree.command(name='stats', description='Get statistics')
 async def generate(interaction: discord.Interaction):
