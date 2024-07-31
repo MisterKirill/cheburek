@@ -21,21 +21,21 @@ tree = app_commands.CommandTree(client)
 
 words = []
 
-def generate_message():
+def generate_message(max_words: int = 5) -> str:
     message = ''
 
-    for _ in range(random.randint(1, 5)):
+    for _ in range(random.randint(1, max_words)):
         message += random.choice(words) + ' '
 
     return message.rstrip()
 
 def generate_ai_image_and_message():
-    generation = generate_message()
+    generation = generate_message(3)
     api = Text2ImageAPI('https://api-key.fusionbrain.ai/', os.getenv('FUSIONBRAIN_API_KEY'), os.getenv('FUSIONBRAIN_API_SECRET'))
     model_id = api.get_model()
-    uuid = api.generate(generation, model_id, width=256, height=256)
+    uuid = api.generate(generation, model_id, width=768, height=768)
     images = api.check_generation(uuid)
-    return (generation, discord.File(io.BytesIO(base64.b64decode(images[0])), filename='ai_image.png'))
+    return generation, io.BytesIO(base64.b64decode(images[0]))
 
 @tree.command(name='generate', description='Generate a message')
 async def generate(interaction: discord.Interaction):
@@ -60,28 +60,43 @@ async def demotivator(interaction: discord.Interaction):
         image_binary.seek(0)
         await interaction.response.send_message(file=discord.File(image_binary, 'demotivator.png'))
 
+@tree.command(name='aidemotivator', description='Generate an AI demotivator')
+async def aidemotivator(interaction: discord.Interaction):
+    await interaction.response.defer()
+
+    loop = asyncio.get_running_loop()
+
+    message, bytes_image = await loop.run_in_executor(None, generate_ai_image_and_message)
+
+    image = Image.open(bytes_image)
+    image = image.resize((430, 334))
+
+    template = Image.open('images/demotivator.png')
+    template.paste(image, (72, 42))
+
+    draw = ImageDraw.Draw(template)
+
+    font = ImageFont.truetype('fonts/Impact.ttf', 32)
+    draw.text((template.width // 2, 450), message, (255, 255, 255), font=font, anchor='mm')
+
+    with io.BytesIO() as image_binary:
+        template.save(image_binary, 'PNG')
+        image_binary.seek(0)
+        await interaction.followup.send(file=discord.File(image_binary, 'ai_demotivator.png'))
+
 @tree.command(name='fresco', description='Generate a Fresco meme')
 async def fresco(interaction: discord.Interaction):
     template = Image.open('images/fresco.png')
 
     draw = ImageDraw.Draw(template)
 
-    font = ImageFont.truetype('fonts/Arial.ttf', 23)
-    draw.text((165, 160), generate_message(), (0, 0, 0), font=font, anchor='mm')
+    font = ImageFont.truetype('fonts/Arial.ttf', 20)
+    draw.text((166, 160), generate_message(), (0, 0, 0), font=font, anchor='mm')
 
     with io.BytesIO() as image_binary:
         template.save(image_binary, 'PNG')
         image_binary.seek(0)
         await interaction.response.send_message(file=discord.File(image_binary, 'demotivator.png'))
-
-@tree.command(name='ai', description='Generate an AI image')
-async def ai(interaction: discord.Interaction):
-    await interaction.response.defer()
-
-    loop = asyncio.get_running_loop()
-
-    message, image = await loop.run_in_executor(None, generate_ai_image_and_message)
-    await interaction.followup.send(message, file=image)
 
 @tree.command(name='stats', description='Get statistics')
 async def stats(interaction: discord.Interaction):
