@@ -90,7 +90,7 @@ async def fresco(interaction: discord.Interaction):
 
     draw = ImageDraw.Draw(template)
 
-    font = ImageFont.truetype('fonts/Arial.ttf', 20)
+    font = ImageFont.truetype('fonts/times.ttf', 20)
     draw.text((166, 160), generate_message(), (0, 0, 0), font=font, anchor='mm')
 
     with io.BytesIO() as image_binary:
@@ -113,13 +113,10 @@ async def on_message(ctx: discord.Message):
     for word in content.split(' '):
         word = word.translate(str.maketrans('', '', string.punctuation)).strip().lower().replace('\n', '')
         
-        if word == '':
-            continue
-        if word.find('http://') != -1 or word.find('https://') != -1:
-            continue
-        elif word.startswith('<@') and word.endswith('>'):
-            continue
-        elif word in words:
+        if word == '' \
+            or word.find('http://') != -1 or word.find('https://') != -1 \
+            or word.startswith('<@') and word.endswith('>') \
+            or word in words:
             continue
         else:
             with open('data/words.txt', 'a', encoding='utf8', buffering=1) as file:
@@ -132,6 +129,9 @@ async def on_message(ctx: discord.Message):
         if attachment.content_type.startswith('image/'):
             await attachment.save(f'data/images/{ctx.id}.png')
             print(f'New image from {ctx.author}')
+    
+    if random.randint(0, 10) == 0: # small chance of random answer
+        ctx.channel.send(generate_message())
 
 @client.event
 async def on_ready():
